@@ -15,8 +15,6 @@ jobs:
     environment: main
     env:
       NODE_OPTIONS: --max-old-space-size=4096
-    outputs:
-      submission-id: ${{ steps.notarize-submit.outputs.submission-id }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -81,8 +79,7 @@ jobs:
         run: npx electron-builder --publish never
         timeout-minutes: 10
 
-      - name: Submit for notarization (no wait)
-        id: notarize-submit
+      - name: Submit for notarization and wait
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
@@ -93,20 +90,12 @@ jobs:
             echo "ERROR: No .dmg file found in release/"
             exit 1
           fi
-          echo "Submitting $DMG for notarization..."
+          echo "Submitting $DMG for notarization and waiting for result..."
           xcrun notarytool submit "$DMG" \
             --apple-id "$APPLE_ID" \
             --password "$APPLE_APP_SPECIFIC_PASSWORD" \
             --team-id "$APPLE_TEAM_ID" \
-            --output-format json | tee /tmp/notarize-output.json
-          SUBMISSION_ID=$(jq -r '.id' /tmp/notarize-output.json)
-          if [ -z "$SUBMISSION_ID" ] || [ "$SUBMISSION_ID" = "null" ]; then
-            echo "ERROR: Failed to get submission ID from notarytool"
-            cat /tmp/notarize-output.json
-            exit 1
-          fi
-          echo "Submission ID: $SUBMISSION_ID"
-          echo "submission-id=$SUBMISSION_ID" >> "$GITHUB_OUTPUT"
+            --wait
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
@@ -119,112 +108,9 @@ jobs:
             release/*.blockmap
           retention-days: 7
 
-  # ── Job 2: Poll notarization on Linux (cheap runner for the wait) ────────
-  wait-for-notarization:
-    needs: build-and-sign
-    runs-on: ubuntu-latest
-    environment: main
-    timeout-minutes: 60
-    steps:
-      - name: Poll notarization status
-        env:
-          SUBMISSION_ID: ${{ needs.build-and-sign.outputs.submission-id }}
-          APPLE_API_KEY_ID: ${{ secrets.APPLE_API_KEY_ID }}
-          APPLE_API_ISSUER_ID: ${{ secrets.APPLE_API_ISSUER_ID }}
-          APPLE_API_KEY_P8: ${{ secrets.APPLE_API_KEY_P8 }}
-        run: |
-          umask 077
-          echo "$APPLE_API_KEY_P8" > /tmp/apikey.p8
-          python3 << 'PYEOF'
-          import json, time, base64, os, subprocess, sys, tempfile, urllib.request
-
-          KEY_ID = os.environ["APPLE_API_KEY_ID"]
-          ISSUER_ID = os.environ["APPLE_API_ISSUER_ID"]
-          SUBMISSION_ID = os.environ["SUBMISSION_ID"]
-          KEY_FILE = "/tmp/apikey.p8"
-
-          def b64url(data):
-              if isinstance(data, str): data = data.encode()
-              return base64.urlsafe_b64encode(data).rstrip(b"=").decode()
-
-          def der_to_raw(der):
-              """Convert DER-encoded ECDSA signature to raw R||S (64 bytes)."""
-              idx = 2  # skip 0x30 <len>
-              assert der[idx] == 0x02
-              rlen = der[idx + 1]
-              r = der[idx + 2:idx + 2 + rlen]
-              idx = idx + 2 + rlen
-              assert der[idx] == 0x02
-              slen = der[idx + 1]
-              s = der[idx + 2:idx + 2 + slen]
-              return r[-32:].rjust(32, b"\x00") + s[-32:].rjust(32, b"\x00")
-
-          def generate_jwt():
-              header = b64url(json.dumps({"alg": "ES256", "kid": KEY_ID, "typ": "JWT"}))
-              now = int(time.time())
-              payload = b64url(json.dumps({"iss": ISSUER_ID, "iat": now, "exp": now + 1200, "aud": "appstoreconnect-v1"}))
-              signing_input = f"{header}.{payload}".encode()
-              with tempfile.NamedTemporaryFile(delete=False) as f:
-                  f.write(signing_input)
-                  input_path = f.name
-              sig_path = input_path + ".sig"
-              try:
-                  subprocess.run(["openssl", "dgst", "-sha256", "-sign", KEY_FILE, "-out", sig_path, input_path], check=True)
-                  with open(sig_path, "rb") as f:
-                      der_sig = f.read()
-              finally:
-                  for p in (input_path, sig_path):
-                      try: os.unlink(p)
-                      except OSError: pass
-              return f"{header}.{payload}.{b64url(der_to_raw(der_sig))}"
-
-          print(f"Waiting for notarization of submission {SUBMISSION_ID}...")
-          jwt = generate_jwt()
-          API_URL = f"https://appstoreconnect.apple.com/notary/v2/submissions/{SUBMISSION_ID}"
-          consecutive_errors = 0
-          MAX_CONSECUTIVE_ERRORS = 10
-
-          for attempt in range(1, 121):  # 120 × 30s = 60 min
-              try:
-                  req = urllib.request.Request(API_URL, headers={"Authorization": f"Bearer {jwt}"})
-                  with urllib.request.urlopen(req) as resp:
-                      data = json.loads(resp.read())
-                  status = data["data"]["attributes"]["status"]
-                  consecutive_errors = 0
-              except Exception as e:
-                  consecutive_errors += 1
-                  status = f"error: {e}"
-                  if consecutive_errors >= MAX_CONSECUTIVE_ERRORS:
-                      print(f"FATAL: {MAX_CONSECUTIVE_ERRORS} consecutive errors, aborting")
-                      sys.exit(1)
-
-              print(f"[{attempt}/120] Notarization status: {status}", flush=True)
-
-              if status == "Accepted":
-                  print("Notarization successful!")
-                  sys.exit(0)
-              elif status in ("Invalid", "Rejected"):
-                  print(f"Notarization FAILED: {status}")
-                  sys.exit(1)
-
-              # Refresh JWT every 15 min (before 20-min expiry)
-              if attempt % 30 == 0:
-                  jwt = generate_jwt()
-                  print("Refreshed JWT token", flush=True)
-
-              time.sleep(30)
-
-          print("Timed out waiting for notarization")
-          sys.exit(1)
-          PYEOF
-
-      - name: Clean up
-        if: always()
-        run: rm -f /tmp/apikey.p8
-
-  # ── Job 3: Staple notarization ticket on macOS ───────────────────────────
+  # ── Job 2: Staple notarization ticket on macOS ───────────────────────────
   staple:
-    needs: [build-and-sign, wait-for-notarization]
+    needs: build-and-sign
     runs-on: macos-latest
     environment: main
     steps:
@@ -252,7 +138,7 @@ jobs:
             release/*.blockmap
           retention-days: 7
 
-  # ── Job 4: Upload release assets (cheap Linux runner) ────────────────────
+  # ── Job 3: Upload release assets (cheap Linux runner) ────────────────────
   release:
     needs: [build-and-sign, staple]
     if: |
