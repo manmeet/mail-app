@@ -2,6 +2,7 @@
   "name": "exo",
   "version": "0.0.0",
   "license": "BSL-1.1",
+  "author": "Manmeet Maggu",
   "description": "AI-native Gmail desktop client powered by OpenAI",
   "repository": {
     "type": "git",
