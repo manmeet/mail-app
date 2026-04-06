@@ -5,13 +5,13 @@ import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
-// Integration tests for Exo using fake inbox data
+// Integration tests for Trexo Mail using fake inbox data
 // These tests verify the UI and workflow without connecting to real Gmail
 
 let electronApp: ElectronApplication;
 let page: Page;
 
-test.describe("Exo Integration Tests", () => {
+test.describe("Trexo Mail Integration Tests", () => {
   test.describe.configure({ mode: "serial" });
 
   test.beforeAll(async () => {
@@ -67,7 +67,7 @@ test.describe("Exo Integration Tests", () => {
 
   test("app launches and shows main window", async () => {
     // Verify the app title or header is visible
-    const title = await page.locator("text=Exo").first();
+    const title = await page.locator("text=Trexo Mail").first();
     await expect(title).toBeVisible({ timeout: 10000 });
   });
 

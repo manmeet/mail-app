@@ -373,7 +373,7 @@ test.describe("Archive Ready - Screenshots", () => {
 
   test("01 - inbox with archive ready button", async () => {
     await page.goto(`http://127.0.0.1:${PORT}/`);
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page.waitForTimeout(1500);
 
     const archiveButton = page.locator("button[title='Archive Ready']");
@@ -384,7 +384,7 @@ test.describe("Archive Ready - Screenshots", () => {
 
   test("02 - archive ready view with threads", async () => {
     await page.goto(`http://127.0.0.1:${PORT}/`);
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page.waitForTimeout(1500);
 
     const archiveButton = page.locator("button[title='Archive Ready']");
@@ -399,7 +399,7 @@ test.describe("Archive Ready - Screenshots", () => {
 
   test("03 - archive ready thread details", async () => {
     await page.goto(`http://127.0.0.1:${PORT}/`);
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page.waitForTimeout(1500);
 
     const archiveButton = page.locator("button[title='Archive Ready']");
@@ -428,7 +428,7 @@ test.describe("Archive Ready - Screenshots", () => {
 
   test("04 - sent email thread as archive-ready", async () => {
     await page.goto(`http://127.0.0.1:${PORT}/`);
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page.waitForTimeout(1500);
 
     const archiveButton = page.locator("button[title='Archive Ready']");
@@ -451,7 +451,7 @@ test.describe("Archive Ready - Screenshots", () => {
 
   test("05 - dismiss a thread (keep)", async () => {
     await page.goto(`http://127.0.0.1:${PORT}/`);
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page.waitForTimeout(1500);
 
     const archiveButton = page.locator("button[title='Archive Ready']");
@@ -473,7 +473,7 @@ test.describe("Archive Ready - Screenshots", () => {
 
   test("06 - back to inbox", async () => {
     await page.goto(`http://127.0.0.1:${PORT}/`);
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page.waitForTimeout(1500);
 
     const archiveButton = page.locator("button[title='Archive Ready']");

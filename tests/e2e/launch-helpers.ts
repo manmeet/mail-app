@@ -36,7 +36,7 @@ export async function launchElectronApp(
 
   const window = await app.firstWindow();
   await window.waitForLoadState("domcontentloaded");
-  await window.waitForSelector("text=Exo", { timeout: 15000 });
+  await window.waitForSelector("text=Trexo Mail", { timeout: 15000 });
 
   // The app defaults to the Priority tab. Switch to "All" so tests see every
   // email in the demo inbox (most tests search for specific emails by name).

@@ -2,13 +2,13 @@ import { test, expect, Page, ElectronApplication } from "@playwright/test";
 import { launchElectronApp , closeApp } from "./launch-helpers";
 
 /**
- * E2E Tests for Exo
+ * E2E Tests for Trexo Mail
  *
  * These tests verify the complete user experience using demo data.
  * Run with: npm run test:e2e
  */
 
-test.describe("Exo E2E - Inbox View", () => {
+test.describe("Trexo Mail E2E - Inbox View", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;
@@ -94,7 +94,7 @@ test.describe("Exo E2E - Inbox View", () => {
   });
 });
 
-test.describe("Exo E2E - Email Detail", () => {
+test.describe("Trexo Mail E2E - Email Detail", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;
@@ -165,7 +165,7 @@ test.describe("Exo E2E - Email Detail", () => {
   });
 });
 
-test.describe("Exo E2E - Draft Generation", () => {
+test.describe("Trexo Mail E2E - Draft Generation", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;
@@ -231,7 +231,7 @@ test.describe("Exo E2E - Draft Generation", () => {
   });
 });
 
-test.describe("Exo E2E - Navigation", () => {
+test.describe("Trexo Mail E2E - Navigation", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;
@@ -326,7 +326,7 @@ test.describe("Exo E2E - Navigation", () => {
   });
 });
 
-test.describe("Exo E2E - Draft Critique", () => {
+test.describe("Trexo Mail E2E - Draft Critique", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;
@@ -381,7 +381,7 @@ test.describe("Exo E2E - Draft Critique", () => {
   });
 });
 
-test.describe("Exo E2E - EA Settings", () => {
+test.describe("Trexo Mail E2E - EA Settings", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;
@@ -449,7 +449,7 @@ test.describe("Exo E2E - EA Settings", () => {
   });
 });
 
-test.describe("Exo E2E - CC Display", () => {
+test.describe("Trexo Mail E2E - CC Display", () => {
   test.describe.configure({ mode: "serial" });
   let electronApp: ElectronApplication;
   let page: Page;

@@ -1,9 +1,9 @@
 {
   "name": "exo",
-  "version": "0.0.0",
+  "version": "0.10.0-beta.1.trexo.1",
   "license": "BSL-1.1",
   "author": "Manmeet Maggu",
-  "description": "AI-native Gmail desktop client powered by OpenAI",
+  "description": "Trexo Mail is an AI-native Gmail desktop client powered by OpenAI",
   "repository": {
     "type": "git",
     "url": "https://github.com/manmeet/mail-app.git"
@@ -110,8 +110,8 @@
   },
   "build": {
     "appId": "com.exo",
-    "productName": "Exo",
-    "artifactName": "${name}-${version}-${arch}-${os}.${ext}",
+    "productName": "Trexo Mail",
+    "artifactName": "trexo-mail-${version}-${arch}-${os}.${ext}",
     "protocols": [
       {
         "name": "Email",

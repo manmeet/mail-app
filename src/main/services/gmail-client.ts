@@ -335,7 +335,7 @@ export class GmailClient {
             <html>
               <body style="font-family: system-ui; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0;">
                 <div style="text-align: center;">
-                  <h1>✓ Exo Connected</h1>
+                  <h1>✓ Trexo Mail Connected</h1>
                   <p>You can close this tab and return to the application.</p>
                 </div>
               </body>

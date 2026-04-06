@@ -36,7 +36,7 @@ test.describe("Image Loading in Emails", () => {
 
   test("images load in HTML emails", async () => {
     // Wait for app and emails to load
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page
       .locator("button")
       .filter({ hasText: /Garry|HR Team|Product Team/ })

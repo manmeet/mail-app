@@ -39,7 +39,7 @@ async function launchApp(): Promise<{ app: ElectronApplication; page: Page }> {
 
   const window = await app.firstWindow();
   await window.waitForLoadState("domcontentloaded");
-  await window.waitForSelector("text=Exo", { timeout: 30000 });
+  await window.waitForSelector("text=Trexo Mail", { timeout: 30000 });
   await window.waitForTimeout(2000);
 
   return { app, page: window };

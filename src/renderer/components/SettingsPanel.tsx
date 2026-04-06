@@ -849,7 +849,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                 General Settings
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Configure how Exo generates draft replies.
+                Configure how Trexo Mail generates draft replies.
               </p>
 
               {/* Appearance / Theme Toggle */}
@@ -1009,7 +1009,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                       Default Mail App
                     </h3>
                     <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                      Register Exo as the default handler for mailto: links. Clicking email links in
+                      Register Trexo Mail as the default handler for mailto: links. Clicking email links in
                       other apps will open a compose window here.
                     </p>
                   </div>
@@ -1502,7 +1502,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
               </button>
 
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">
-                Adding an account will open a Google sign-in window. You'll need to authorize Exo to
+                Adding an account will open a Google sign-in window. You'll need to authorize Trexo Mail to
                 access your emails.
               </p>
             </div>
@@ -2045,7 +2045,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                 Executive Assistant Integration
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-4">
-                When enabled, Exo will automatically CC your executive assistant on emails that
+                When enabled, Trexo Mail will automatically CC your executive assistant on emails that
                 involve scheduling or calendar coordination. This lets your assistant handle
                 scheduling while you focus on the content of your response.
               </p>
@@ -2055,7 +2055,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                   How it works:
                 </h3>
                 <ol className="text-sm text-blue-800 dark:text-blue-300 space-y-1 list-decimal list-inside">
-                  <li>When you generate a draft, Exo detects scheduling language</li>
+                  <li>When you generate a draft, Trexo Mail detects scheduling language</li>
                   <li>If scheduling is detected, your EA is automatically added to the CC</li>
                   <li>The draft includes a note deferring scheduling to your EA</li>
                   <li>Your EA can then coordinate directly with the sender</li>
@@ -3012,7 +3012,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                 Analytics
               </h3>
               <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-                Help improve Exo by sharing usage data and error reports. No email content is ever
+                Help improve Trexo Mail by sharing usage data and error reports. No email content is ever
                 sent.
               </p>
             </div>

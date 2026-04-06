@@ -38,7 +38,7 @@ test.describe("Snooze — email must leave inbox and cursor must advance", () =>
     });
 
     // Wait for the app to fully load with emails
-    await page.waitForSelector("text=Exo", { timeout: 15000 });
+    await page.waitForSelector("text=Trexo Mail", { timeout: 15000 });
     await page
       .locator("button")
       .filter({ hasText: /High|Medium|Low/ })

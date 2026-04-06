@@ -264,7 +264,7 @@ export function ExtensionsTab() {
         <div>
           <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Extensions</h2>
           <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Manage installed extensions that add functionality to Exo.
+            Manage installed extensions that add functionality to Trexo Mail.
           </p>
         </div>
         <button
