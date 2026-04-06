@@ -427,4 +427,55 @@ test.describe("Settings Panel - Persistence", () => {
     await defaultButton.click();
     await page.waitForTimeout(300);
   });
+
+  test("update settings explain the maintainer-only private beta flow", async () => {
+    const isSettingsOpen = await page
+      .locator("h1:has-text('Settings')")
+      .isVisible()
+      .catch(() => false);
+    if (!isSettingsOpen) {
+      await page.locator("button[title='Settings']").click();
+      await expect(page.locator("h1:has-text('Settings')")).toBeVisible({ timeout: 5000 });
+    }
+
+    const settingsText = await page.getByTestId("settings-panel").textContent();
+    expect(settingsText).toContain("Maintainer-only for this private beta");
+    expect(settingsText).toContain("Testers will install manual builds");
+  });
+
+  test("pre-release update toggle persists after saving and reopening settings", async () => {
+    const isSettingsOpen = await page
+      .locator("h1:has-text('Settings')")
+      .isVisible()
+      .catch(() => false);
+    if (!isSettingsOpen) {
+      await page.locator("button[title='Settings']").click();
+      await expect(page.locator("h1:has-text('Settings')")).toBeVisible({ timeout: 5000 });
+    }
+
+    const settingsPanel = page.getByTestId("settings-panel");
+    const prereleaseSwitch = settingsPanel.getByRole("switch", { name: "Pre-release updates" });
+    const saveButton = settingsPanel.getByRole("button", { name: "Save Changes" }).last();
+
+    await prereleaseSwitch.click();
+    await expect(prereleaseSwitch).toHaveAttribute("aria-checked", "true");
+
+    await saveButton.click();
+    await expect(saveButton).toBeVisible({ timeout: 5000 });
+
+    await page.keyboard.press("Escape");
+    await page.waitForTimeout(300);
+    await page.keyboard.press("ControlOrMeta+,");
+    await expect(page.locator("h1:has-text('Settings')")).toBeVisible({ timeout: 5000 });
+
+    const reopenedSwitch = page
+      .getByTestId("settings-panel")
+      .getByRole("switch", { name: "Pre-release updates" });
+    await expect(reopenedSwitch).toHaveAttribute("aria-checked", "true");
+
+    // Restore the default off state for other tests and local runs.
+    await reopenedSwitch.click();
+    await expect(reopenedSwitch).toHaveAttribute("aria-checked", "false");
+    await page.getByTestId("settings-panel").getByRole("button", { name: "Save Changes" }).last().click();
+  });
 });

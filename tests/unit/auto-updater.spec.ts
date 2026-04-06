@@ -4,6 +4,7 @@
  */
 import { test, expect } from "@playwright/test";
 import { EventEmitter } from "events";
+import { readFileSync } from "fs";
 
 // ============================================================
 // Re-implementation of UpdateStatus type and AutoUpdateService state machine
@@ -303,6 +304,35 @@ test.describe("AutoUpdateService state machine", () => {
       service.setStatus({ state: "downloaded", version: "5.0.0" });
 
       expect(received).toEqual({ state: "downloaded", version: "5.0.0" });
+    });
+  });
+
+  test.describe("fork ownership config", () => {
+    test("package.json publishes releases from the fork repository", () => {
+      const packageJson = JSON.parse(
+        readFileSync(new URL("../../package.json", import.meta.url), "utf8"),
+      ) as {
+        repository: { url: string };
+        build: { publish: { owner: string; repo: string; private: boolean } };
+      };
+
+      expect(packageJson.repository.url).toBe("https://github.com/manmeet/mail-app.git");
+      expect(packageJson.build.publish).toMatchObject({
+        owner: "manmeet",
+        repo: "mail-app",
+        private: true,
+      });
+    });
+
+    test("auto-updater points at the fork instead of upstream", () => {
+      const source = readFileSync(
+        new URL("../../src/main/services/auto-updater.ts", import.meta.url),
+        "utf8",
+      );
+
+      expect(source).toContain('owner: "manmeet"');
+      expect(source).toContain('repo: "mail-app"');
+      expect(source).not.toContain('owner: "ankitvgupta"');
     });
   });
 });

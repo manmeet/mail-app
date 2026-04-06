@@ -1267,7 +1267,9 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                     className="w-full p-3 border border-gray-300 dark:border-gray-500 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-gray-100"
                   />
                   <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                    Required for auto-updates from a private repo. Needs{" "}
+                    Maintainer-only for this private beta. Testers will install manual builds.
+                    Required for auto-updates from the private fork and private extension
+                    downloads. Needs{" "}
                     <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">repo</code> scope or
                     fine-grained{" "}
                     <code className="bg-gray-100 dark:bg-gray-700 px-1 rounded">contents:read</code>{" "}
@@ -1286,6 +1288,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                   </div>
                   <button
                     role="switch"
+                    aria-label="Pre-release updates"
                     aria-checked={allowPrereleaseUpdates}
                     onClick={() => setAllowPrereleaseUpdates(!allowPrereleaseUpdates)}
                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${

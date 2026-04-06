@@ -5,7 +5,7 @@
   "description": "AI-native Gmail desktop client powered by OpenAI",
   "repository": {
     "type": "git",
-    "url": "https://github.com/ankitvgupta/mail-app.git"
+    "url": "https://github.com/manmeet/mail-app.git"
   },
   "type": "module",
   "main": "./out/main/index.js",
@@ -147,11 +147,12 @@
     ],
     "files": [
       "out/**/*",
+      "!out/main/.dev-data{,/**}",
       "resources/**/*"
     ],
     "publish": {
       "provider": "github",
-      "owner": "ankitvgupta",
+      "owner": "manmeet",
       "repo": "mail-app",
       "private": true
     },
