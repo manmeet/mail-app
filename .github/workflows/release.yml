@@ -12,6 +12,7 @@ jobs:
   # ── Job 1: Build + sign on macOS (expensive runner, kept short) ──────────
   build-and-sign:
     runs-on: macos-latest
+    environment: main
     env:
       NODE_OPTIONS: --max-old-space-size=4096
     outputs:
@@ -122,6 +123,7 @@ jobs:
   wait-for-notarization:
     needs: build-and-sign
     runs-on: ubuntu-latest
+    environment: main
     timeout-minutes: 60
     steps:
       - name: Poll notarization status
@@ -224,6 +226,7 @@ jobs:
   staple:
     needs: [build-and-sign, wait-for-notarization]
     runs-on: macos-latest
+    environment: main
     steps:
       - name: Download build artifacts
         uses: actions/download-artifact@v4
@@ -257,6 +260,7 @@ jobs:
       needs.staple.result == 'success' &&
       startsWith(github.ref, 'refs/tags/v')
     runs-on: ubuntu-latest
+    environment: main
     steps:
       - name: Download stapled artifacts
         uses: actions/download-artifact@v4
