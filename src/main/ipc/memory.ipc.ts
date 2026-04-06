@@ -188,7 +188,7 @@ export function registerMemoryIpc(): void {
       try {
         const response = await createMessage(
           {
-            model: "claude-haiku-4-5-20251001", // simple JSON classification — always haiku, independent of user model config
+            model: "gpt-5-mini", // simple JSON classification — always haiku, independent of user model config
             max_tokens: 256,
             messages: [
               {

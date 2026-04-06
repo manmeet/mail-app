@@ -294,7 +294,7 @@ async function analyzeOverride(override: AnalysisOverride): Promise<AnalysisObse
 
   const response = await createMessage(
     {
-      model: "claude-sonnet-4-20250514",
+      model: "gpt-5.4-mini",
       max_tokens: 2048,
       messages: [
         {
@@ -390,7 +390,7 @@ async function matchAnalysisDraftMemories(
 
   const response = await createMessage(
     {
-      model: "claude-sonnet-4-5-20250929",
+      model: "gpt-5.4-mini",
       max_tokens: 1024,
       messages: [
         {
@@ -446,7 +446,7 @@ async function classifyScope(
 
   const response = await createMessage(
     {
-      model: "claude-haiku-4-5-20251001",
+      model: "gpt-5-mini",
       max_tokens: 256,
       messages: [
         {

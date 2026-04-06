@@ -216,14 +216,14 @@ export class AgentCoordinator {
 
     // Auto-init the worker with framework config so it's ready for commands.
     // Config is enriched asynchronously by private provider modules before being sent.
-    // Read API key from app config first, fall back to env var; use undefined (not "")
-    // when neither exists so the SDK falls through to Claude Code's stored OAuth.
     const appConfig = getConfig();
-    const apiKey = appConfig.anthropicApiKey || process.env.ANTHROPIC_API_KEY || undefined;
+    const openaiApiKey = appConfig.openaiApiKey || process.env.OPENAI_API_KEY || undefined;
+    const anthropicApiKey = appConfig.anthropicApiKey || process.env.ANTHROPIC_API_KEY || undefined;
     const browser = appConfig.agentBrowser;
     const baseConfig: AgentFrameworkConfig = {
       model: getModelIdForFeature("agentDrafter"),
-      anthropicApiKey: apiKey,
+      openaiApiKey,
+      anthropicApiKey,
       browserConfig: browser
         ? {
             enabled: browser.enabled,
@@ -261,6 +261,7 @@ export class AgentCoordinator {
             providerPath,
             config: {
               model: getModelIdForFeature("agentDrafter"),
+              openaiApiKey: getConfig().openaiApiKey || process.env.OPENAI_API_KEY || undefined,
               anthropicApiKey:
                 getConfig().anthropicApiKey || process.env.ANTHROPIC_API_KEY || undefined,
             },
@@ -500,6 +501,7 @@ export class AgentCoordinator {
     const appConfig = getConfig();
     const config: AgentFrameworkConfig = {
       model: getModelIdForFeature("agentDrafter"),
+      openaiApiKey: appConfig.openaiApiKey || process.env.OPENAI_API_KEY || undefined,
       anthropicApiKey: appConfig.anthropicApiKey || process.env.ANTHROPIC_API_KEY || undefined,
     };
     this.sendToWorker({ type: "config_update", config });

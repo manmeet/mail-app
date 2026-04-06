@@ -436,7 +436,7 @@ function baseToolName(name: string): string {
   return name;
 }
 
-function buildSystemPrompt(
+export function buildSystemPrompt(
   context: AgentContext,
   tools: AgentToolSpec[],
   memoryContext?: string,

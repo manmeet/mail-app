@@ -222,12 +222,12 @@ export function AgentCommandPalette({ isOpen, onClose }: AgentCommandPaletteProp
   }, [query, suggestedActions, quickActions]);
 
   // When the palette opens, fetch real provider list from the backend if we don't have one yet.
-  // Also auto-select "claude" when nothing is selected.
+  // Also auto-select the built-in OpenAI agent when nothing is selected.
   useEffect(() => {
     if (!isOpen) return;
 
     if (selectedAgentIds.length === 0) {
-      setSelectedAgentIds(["claude"]);
+      setSelectedAgentIds(["openai"]);
     }
 
     if (availableProviders.length === 0) {

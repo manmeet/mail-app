@@ -81,3 +81,13 @@ Show a small badge ("Web Search", "YC") on each enrichment sidebar panel so user
 - **Depends on:** Nothing (startup cache fix already landed)
 - **Context:** Observed in real inbox with 738 emails, 5 agent drafts queued. The `processAgentDraft` path in `prefetch-service.ts:1002` calls `getEmail(emailId)` (sync SQLite), then `agentCoordinator.runAgent()` which does MessagePort setup and proxy initialization. After completion, `AgentCoordinator.Persisted N events` writes N rows synchronously. All on the main Electron thread.
 - **Added:** 2026-04-04, observed during real-inbox testing of prefetch cache fix
+
+## Release
+
+### P3: Deduplicate beta release identity config
+- **What:** Move the fork owner/repo release identity into one shared source of truth instead of hardcoding it separately in the updater and build publish config.
+- **Why:** Prevent silent drift between the updater feed and release publishing after the Team Beta Fork lands.
+- **Effort:** S (human: ~1-2 hrs / CC: ~10-15 min)
+- **Depends on:** Team Beta Fork implementation landing first
+- **Context:** During the `codex/openai-migration` Team Beta Fork eng review on 2026-04-06, we intentionally chose the minimal-diff beta path and accepted hardcoding `manmeet/mail-app` in both `src/main/services/auto-updater.ts` and `package.json`. That keeps the beta small, but it leaves a maintenance trap if the repo, channel model, or release ownership changes later. First cleanup after the beta proves itself.
+- **Added:** 2026-04-06, eng review of Team Beta Fork plan

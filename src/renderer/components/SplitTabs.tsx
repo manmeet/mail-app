@@ -17,7 +17,10 @@ interface TabProps {
 function Tab({ active, onClick, count, children }: TabProps) {
   return (
     <button
-      onClick={onClick}
+      onClick={(event) => {
+        onClick();
+        event.currentTarget.blur();
+      }}
       className={`
         px-3 py-2 text-sm font-medium whitespace-nowrap
         border-b-2 transition-colors focus:outline-none

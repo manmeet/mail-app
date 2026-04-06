@@ -1,5 +1,16 @@
 import { test, expect, Page, ElectronApplication } from "@playwright/test";
-import { launchElectronApp , closeApp } from "./launch-helpers";
+import {
+  launchElectronApp,
+  closeApp,
+  waitForEmailListReady,
+  pressKeyUntilVisible,
+} from "./launch-helpers";
+
+async function selectFirstThread(page: Page): Promise<void> {
+  await waitForEmailListReady(page);
+  const selected = page.locator(".overflow-y-auto div[data-thread-id].bg-blue-600").first();
+  await pressKeyUntilVisible(page, "j", selected, { timeout: 5000, retryInterval: 300 });
+}
 
 test.describe("Agent Framework", () => {
   test.describe.configure({ mode: "serial" });
@@ -32,8 +43,7 @@ test.describe("Agent Framework", () => {
 
   test("Cmd+J opens the agent command palette", async () => {
     // Select the first email so palette shows quick actions
-    await page.keyboard.press("j");
-    await page.waitForTimeout(300);
+    await selectFirstThread(page);
 
     // Press Cmd+J
     await page.keyboard.press("ControlOrMeta+j");
@@ -54,6 +64,8 @@ test.describe("Agent Framework", () => {
   });
 
   test("agent command palette shows quick actions", async () => {
+    await selectFirstThread(page);
+
     // Open palette
     await page.keyboard.press("ControlOrMeta+j");
     await page.waitForTimeout(500);
@@ -123,8 +135,7 @@ test.describe("Agent Framework", () => {
 
   test("agent palette filtering works", async () => {
     // Select an email first so quick actions are shown
-    await page.keyboard.press("j");
-    await page.waitForTimeout(300);
+    await selectFirstThread(page);
 
     await page.keyboard.press("ControlOrMeta+j");
     await page.waitForTimeout(500);

@@ -350,6 +350,7 @@ export function registerExtensionsIpc(): void {
         const appConfig = getConfig();
         const baseConfig = {
           model: getModelIdForFeature("agentDrafter"),
+          openaiApiKey: appConfig.openaiApiKey || process.env.OPENAI_API_KEY || undefined,
           anthropicApiKey: appConfig.anthropicApiKey || process.env.ANTHROPIC_API_KEY || undefined,
         };
         const enrichedConfig = await populatePrivateProviderConfig(baseConfig);

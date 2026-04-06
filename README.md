@@ -2,7 +2,7 @@
 
 <img width="1200" alt="Exo" src="docs/images/readme-hero.png" />
 
-### Exo: Claude Code for your Inbox
+### Exo: AI-Native Inbox for Gmail
 
 [![GitHub stars](https://img.shields.io/github/stars/ankitvgupta/mail-app?style=flat&logo=github)](https://github.com/ankitvgupta/mail-app/stargazers)
 [![GitHub release](https://img.shields.io/github/v/release/ankitvgupta/mail-app?style=flat&logo=github)](https://github.com/ankitvgupta/mail-app/releases)
@@ -11,7 +11,7 @@
 
 <br />
 
-Exo is Claude Code for your Inbox. It's an open source, AI-native desktop email client. <br />
+Exo is an open source, AI-native desktop email client for Gmail. <br />
 Built with Electron, React, TypeScript, and Tailwind CSS.
 
 <br />
@@ -34,17 +34,17 @@ Exo treats AI as a first-class citizen — not a bolted-on feature. Every email 
 
 ## Getting Started 
 
-You can click the "Download .dmg" button above to download a Mac app that is ready for configuration. All you need to provide is Gmail API information (it has instructions) and an Anthropic API Key. If you're a developer, see the instructions at the bottom, or ask Claude Code to figure it out. 
+You can click the "Download .dmg" button above to download a Mac app that is ready for configuration. All you need to provide is Gmail API information (it has instructions) and an OpenAI API key. If you're a developer, see the instructions at the bottom.
 
 ## Features
 
 ### AI-Powered Email
 
-- **Automatic triage** — Claude analyzes every incoming email and assigns a priority (high / medium / low / skip), so your inbox is pre-sorted by what actually matters
+- **Automatic triage** — OpenAI-powered analysis assigns every incoming email a priority (high / medium / low / skip), so your inbox is pre-sorted by what actually matters
 - **Smart draft generation** — AI-generated reply drafts that consider thread context, sender background, and your writing style. Drafts are generated in the background so they're ready when you open a thread
 - **Draft refinement** — iteratively improve any draft with natural language feedback ("make this shorter", "more formal", "add the pricing details")
 - **Writing style learning** — the system extracts style samples from your sent mail and uses few-shot examples so drafts sound like you, not a chatbot
-- **Sender lookup** — automatic web search via Claude to surface sender context (role, company, LinkedIn) in a sidebar panel
+- **Sender lookup** — automatic web search surfaces sender context (role, company, LinkedIn) in a sidebar panel
 - **Draft-edit learning** — when you edit an AI draft before sending, Exo extracts your preferences and applies them to future drafts
 - **Archive-ready detection** — identifies threads that are conversationally complete and can be safely archived
 - **Reminder detection** — recognizes Boomerang/reminder service emails and traces back to the original sender
@@ -55,11 +55,11 @@ https://github.com/user-attachments/assets/1e5d1e33-c46d-4519-aae5-e00aed8dda6b
 
 ### Agent System
 
-- **Cmd+J agent palette** — ask Claude to do anything with the current email: draft a reply, look something up, forward with context. Agent traces are displayed in a sidebar tab
+- **Cmd+J agent palette** — ask the built-in AI agent to do anything with the current email: draft a reply, look something up, forward with context. Agent traces are displayed in a sidebar tab
 - **Agent tools** — the agent can read emails, read/update drafts, search Gmail, and forward messages
 - **Per-email agent tasks** — each email can have its own running agent task, visible in the sidebar
 - **Follow-up conversations** — continue talking to the agent about a specific email across multiple turns
-- **Agent-to-agent communication** — Exo's built-in Claude agent can delegate to external agents you bring. Register a third-party agent (like [OpenClaw](https://openclaw.com)) or one internal to your company, and the Exo agent will automatically call out to it when it needs domain-specific information. For example, if you register your company's internal knowledge agent, the Exo agent can ask it "what's the status of the Acme deal?" while drafting a reply, without you having to switch tools
+- **Agent-to-agent communication** — Exo's built-in OpenAI agent can delegate to external agents you bring. Register a third-party agent (like [OpenClaw](https://openclaw.com)) or one internal to your company, and the Exo agent will automatically call out to it when it needs domain-specific information. For example, if you register your company's internal knowledge agent, the Exo agent can ask it "what's the status of the Acme deal?" while drafting a reply, without you having to switch tools
 
 
 
@@ -79,7 +79,7 @@ https://github.com/user-attachments/assets/442f5320-2bec-4348-937d-48ad2100552e
 - **Bundled extensions** — ship with the app, statically imported at build time
 - **Private extensions** — discovered at build time via `import.meta.glob`, auto-registered. Use this to add proprietary extensions for your team without forking
 - **Runtime-installable extensions** — install/uninstall extensions without rebuilding the app
-- **Custom agent providers** — extensions can register their own AI agent providers. Build an agent that talks to your company's internal APIs, knowledge bases, or tooling, package it as an extension, and it appears in the Cmd+J palette alongside the built-in Claude agent. The Exo agent can also sub-delegate to your agent provider, so your internal agents participate in the conversation automatically when relevant
+- **Custom agent providers** — extensions can register their own AI agent providers. Build an agent that talks to your company's internal APIs, knowledge bases, or tooling, package it as an extension, and it appears in the Cmd+J palette alongside the built-in OpenAI agent. The Exo agent can also sub-delegate to your agent provider, so your internal agents participate in the conversation automatically when relevant
 - **Extension authentication** — extensions can require auth, with banner UI and onboarding integration
 - **Sidebar panels** — extensions can add custom sidebar tabs scoped to specific emails (e.g., show CRM data, support ticket status, or deal context alongside the email)
 - **MCP server support** — configure custom MCP servers that agents can use as tool providers
@@ -175,7 +175,7 @@ npm install
 ### 2. Set API Key
 
 ```bash
-export ANTHROPIC_API_KEY=your_key_here
+export OPENAI_API_KEY=your_key_here
 ```
 
 ### 3. Run

@@ -859,7 +859,7 @@ When you see emails in a thread where ${eaName} is coordinating scheduling with 
 
       // Still queue sender-profile even when analysis fails.
       // Extension enrichments (e.g. third-party services) don't depend on
-      // the Anthropic API, so they can run independently of analysis.
+      // the shared LLM service, so they can run independently of analysis.
       const config = getConfig();
       if (config.enableSenderLookup ?? true) {
         const senderEmail = this.extractSenderEmail(email.from);
@@ -1115,7 +1115,7 @@ When you see emails in a thread where ${eaName} is coordinating scheduling with 
       this.activeAgentTaskIds.set(emailId, taskId);
 
       // Launch the agent and await its actual completion (not just startup)
-      await agentCoordinator.runAgent(taskId, ["claude"], prompt, context);
+      await agentCoordinator.runAgent(taskId, ["openai"], prompt, context);
       await agentCoordinator.waitForCompletion(taskId);
 
       // Link the draft record to the agent task so the trace can be loaded later

@@ -40,7 +40,7 @@ export const EmailSearchResultSchema = z.object({
 
 export type EmailSearchResult = z.infer<typeof EmailSearchResultSchema>;
 
-// Analysis result from Claude
+// Analysis result from the LLM
 export const AnalysisResultSchema = z.object({
   needs_reply: z.boolean(),
   reason: z.string(),
@@ -269,7 +269,6 @@ export const SignatureSchema = z.object({
 export type Signature = z.infer<typeof SignatureSchema>;
 
 // Custom MCP server configuration — supports stdio, http, and sse transports.
-// Shape mirrors the Claude Agent SDK's McpServerConfig union type.
 const McpStdioConfigSchema = z.object({
   type: z.literal("stdio").optional(), // default transport when omitted
   command: z.string().min(1),
@@ -306,26 +305,23 @@ export const CliToolConfigSchema = z.object({
 });
 export type CliToolConfig = z.infer<typeof CliToolConfigSchema>;
 
-// AI model tiers — user-facing names mapped to specific model IDs
+// AI model tiers — user-facing tiers mapped to concrete model IDs.
 export const MODEL_TIERS = ["haiku", "sonnet", "opus"] as const;
 export const ModelTierSchema = z.enum(["haiku", "sonnet", "opus"]);
 export type ModelTier = z.infer<typeof ModelTierSchema>;
 
 // Centralized mapping from tier to model ID. Update these when new model versions ship.
-// Note: sonnet maps to 4.5 (not the legacy 4.0 default) — this is an intentional upgrade.
-// Opus uses the non-date-stamped alias because no pinned snapshot is available yet for 4.6.
-// Pin to a date-stamped ID (e.g. "claude-opus-4-6-YYYYMMDD") once Anthropic publishes one.
 export const MODEL_TIER_IDS: Record<ModelTier, string> = {
-  haiku: "claude-haiku-4-5-20251001",
-  sonnet: "claude-sonnet-4-5-20250929",
-  opus: "claude-opus-4-6",
+  haiku: "gpt-5-mini",
+  sonnet: "gpt-5.4-mini",
+  opus: "gpt-5.4",
 };
 
 // Display labels for the UI
 export const MODEL_TIER_LABELS: Record<ModelTier, string> = {
-  haiku: "Haiku (fast, lightweight)",
-  sonnet: "Sonnet (balanced)",
-  opus: "Opus (most capable)",
+  haiku: "Mini (fast, lightweight)",
+  sonnet: "GPT-5.4 mini (balanced)",
+  opus: "GPT-5.4 (most capable)",
 };
 
 // Per-feature model configuration
@@ -363,9 +359,11 @@ export const ConfigSchema = z.object({
   maxEmails: z.number().default(50),
   // Legacy field — no longer drives any AI calls. All features now use modelConfig
   // via getModelIdForFeature(). Kept in the schema so existing config files parse without error.
-  model: z.string().default("claude-sonnet-4-20250514"),
+  model: z.string().default("gpt-5.4-mini"),
   modelConfig: ModelConfigSchema.optional(),
   dryRun: z.boolean().default(false),
+  openaiApiKey: z.string().optional(),
+  // Legacy/optional Anthropic key kept for the optional Claude agent provider.
   anthropicApiKey: z.string().optional(),
   analysisPrompt: z.string().default(DEFAULT_ANALYSIS_PROMPT),
   draftPrompt: z.string().default(DEFAULT_DRAFT_PROMPT),

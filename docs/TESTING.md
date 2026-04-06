@@ -52,13 +52,13 @@ E2E tests run in parallel. Each Playwright worker gets an isolated database via 
 |------|---------|---------|
 | Demo | `GMAIL_DRAFTER_DEMO_MODE=true` | Mock data, no real API calls. Used by all automated tests. |
 | Test | `GMAIL_DRAFTER_TEST_MODE=true` | Similar to demo but for manual test scenarios. |
-| Real | Neither set | Real Gmail + Claude API calls. Never used in CI. |
+| Real | Neither set | Real Gmail + OpenAI API calls. Never used in CI. |
 
 ## Mocking Patterns
 
-### AnthropicService Mock (`tests/mocks/anthropic-api-mock.ts`)
+### LLM Service Mock (`tests/mocks/anthropic-api-mock.ts`)
 
-For unit-testing services that call Claude through `AnthropicService`:
+For unit-testing services that call the shared LLM wrapper through `anthropic-service.ts`:
 
 ```typescript
 import {
@@ -82,7 +82,7 @@ Key features:
 - `mockAnthropicResponse()` — set a single canned response for all calls
 - `queueAnthropicResponses()` — queue ordered responses consumed per call
 - `mockAnthropicError()` — queue an error to throw on next call
-- `getCapturedRequests()` — inspect what was sent to Claude
+- `getCapturedRequests()` — inspect what was sent to the LLM wrapper
 
 ### Gmail API Fixtures (`tests/mocks/gmail-api-fixtures.ts`)
 
@@ -107,5 +107,5 @@ Run them with `npm run test:problematic` when debugging those features.
 2. **E2E tests**: Create `tests/e2e/<feature>.spec.ts`. Use `launch-helpers.ts` to start the Electron app.
 3. **Integration tests**: Create `tests/<feature>.spec.ts` at the tests root.
 4. Name files `*.spec.ts` (required by Playwright's `testMatch` pattern).
-5. For services that use Claude, use the `MockAnthropic` + `_setClientForTesting()` pattern described above.
+5. For services that use the shared LLM wrapper, use the `MockAnthropic` + `_setClientForTesting()` pattern described above.
 6. For services that use the database, create a fresh in-memory database in your test setup.

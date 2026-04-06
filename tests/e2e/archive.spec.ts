@@ -1,5 +1,10 @@
 import { test, expect, Page, ElectronApplication } from "@playwright/test";
-import { launchElectronApp , closeApp } from "./launch-helpers";
+import {
+  launchElectronApp,
+  closeApp,
+  waitForEmailListReady,
+  pressKeyUntilVisible,
+} from "./launch-helpers";
 
 /**
  * E2E Tests for optimistic archive and trash behavior.
@@ -34,11 +39,9 @@ async function getSelectedRowText(page: Page): Promise<string | null> {
 
 /** Select the first inbox thread by pressing 'j' and wait for selection. */
 async function selectFirstThread(page: Page): Promise<void> {
-  await page.keyboard.press("j");
-  await page.waitForTimeout(300);
-  // Verify selection is visible
-  const selected = page.locator(".overflow-y-auto div[data-thread-id].bg-blue-600");
-  await expect(selected).toBeVisible({ timeout: 3000 });
+  await waitForEmailListReady(page);
+  const selected = page.locator(".overflow-y-auto div[data-thread-id].bg-blue-600").first();
+  await pressKeyUntilVisible(page, "j", selected, { timeout: 5000, retryInterval: 300 });
 }
 
 // ---------------------------------------------------------------------------

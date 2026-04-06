@@ -12,6 +12,7 @@ import type {
   ToolExecutorFn,
 } from "./types";
 import { AgentProviderRegistry } from "./providers/registry";
+import { OpenAIAgentProvider } from "./providers/openai-agent-provider";
 import { ClaudeAgentProvider } from "./providers/claude-agent-provider";
 import { OpenClawAgentProvider } from "./providers/openclaw/openclaw-agent-provider";
 import { PermissionGate } from "./permission-gate";
@@ -54,7 +55,10 @@ export class AgentOrchestrator {
 
     this.providerRegistry = new AgentProviderRegistry();
 
-    // Register the Claude provider by default
+    // Register the OpenAI provider by default
+    this.providerRegistry.register(new OpenAIAgentProvider(deps.config));
+
+    // Keep the Claude provider available as an optional advanced path
     this.providerRegistry.register(new ClaudeAgentProvider(deps.config));
 
     // Register the OpenClaw provider

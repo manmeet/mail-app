@@ -1,6 +1,6 @@
 # Architecture
 
-Exo is a desktop Gmail client built with Electron, React, TypeScript, and Tailwind CSS. AI features run through Claude (Anthropic SDK + Claude Agent SDK).
+Exo is a desktop Gmail client built with Electron, React, TypeScript, and Tailwind CSS. Core AI features run through OpenAI, with optional provider support for Claude and custom agents.
 
 ## System Diagram
 
@@ -19,7 +19,7 @@ Exo is a desktop Gmail client built with Electron, React, TypeScript, and Tailwi
 │  │  - EmailDetail       │                     │  Extensions (extensions/)  │   │
 │  │  - DraftEditor       │                     │                            │   │
 │  │  - SettingsPanel     │                     │  Infrastructure:           │   │
-│  │  - SenderProfilePanel│                     │  - AnthropicService        │   │
+│  │  - SenderProfilePanel│                     │  - LlmService              │   │
 │  │  - SetupWizard       │                     │  - Logger (pino)           │   │
 │  │                      │                     │  - SQLite (better-sqlite3) │   │
 │  │  Store:              │                     │                            │   │
@@ -33,7 +33,7 @@ Exo is a desktop Gmail client built with Electron, React, TypeScript, and Tailwi
                                               ┌───────────▼──────────┐
                                               │   External Services  │
                                               │  - Gmail API (OAuth) │
-                                              │  - Claude API        │
+                                              │  - OpenAI API        │
                                               │  - Google Calendar   │
                                               │  - MCP Servers       │
                                               └──────────────────────┘
@@ -76,7 +76,7 @@ All IPC is `ipcMain.handle` / `ipcRenderer.invoke` (request-response). The chann
 
 ### Analysis
 1. PrefetchService queues unanalyzed emails after sync
-2. `EmailAnalyzer.analyze()` calls Claude via `AnthropicService.createMessage()`
+2. `EmailAnalyzer.analyze()` calls the shared LLM wrapper via `createMessage()`
 3. Returns `{ needs_reply, reason, priority }`, stored in `analyses` table
 4. Renderer reads analysis alongside email data
 
@@ -84,12 +84,12 @@ All IPC is `ipcMain.handle` / `ipcRenderer.invoke` (request-response). The chann
 1. Triggered by user ("Generate Draft") or auto-draft for high priority emails
 2. `DraftGenerator` assembles context: email thread, sender profile, analysis, memories
 3. If EA enabled: `CalendaringAgent` checks for scheduling, adds CC + deferral language
-4. Claude generates draft, stored in `drafts` table
+4. OpenAI generates draft, stored in `drafts` table
 5. User can refine via `drafts:refine` (iterative feedback loop)
 
 ### Agent Chat
 1. User opens agent chat panel, sends message
-2. `AgentCoordinator` dispatches to `ClaudeAgentProvider` (Claude Agent SDK)
+2. `AgentCoordinator` dispatches to the configured provider (OpenAI by default, Claude optional)
 3. Agent has access to MCP tools: email search, draft creation, calendar lookup
 4. All tool calls go through `PermissionGate` and are logged to `agent_audit_log`
 5. Conversation state mirrored in `agent_conversation_mirror` table
@@ -100,12 +100,12 @@ SQLite via `better-sqlite3` with WAL mode. Schema in `src/main/db/schema.ts`.
 
 Key tables (25+ total):
 - **`emails`** — cached Gmail messages with full body, metadata, labels
-- **`analyses`** — Claude analysis results per email
+- **`analyses`** — AI analysis results per email
 - **`drafts`** — generated reply drafts
 - **`accounts`** — multi-inbox account records
 - **`sync_state`** — per-account history IDs for incremental sync
 - **`sender_profiles`** — cached web-search results for sender info
-- **`llm_calls`** — every Claude API call (cost tracking, managed by AnthropicService)
+- **`llm_calls`** — every LLM API call (cost tracking, managed by the shared LLM service)
 - **`memories`** / **`draft_memories`** — persistent user preferences for draft generation
 - **`agent_audit_log`** — agent tool call audit trail
 - **`emails_fts`** — FTS5 virtual table for full-text search
@@ -122,19 +122,20 @@ Extensions are inlined at build time. No runtime filesystem scanning.
 
 ## Agent System
 
-The agent system uses Claude Agent SDK with MCP for tool execution.
+The agent system supports multiple providers. OpenAI is the default built-in provider, and Claude Agent SDK remains available as an optional tool-enabled provider.
 
 ```
 src/main/agents/
 ├── agent-coordinator.ts     # Dispatches tasks to providers
-├── orchestrator.ts          # Claude Agent SDK orchestration
+├── orchestrator.ts          # Multi-provider agent orchestration
 ├── agent-worker.ts          # Worker thread for agent execution
 ├── permission-gate.ts       # Tool call approval logic
 ├── audit-log.ts             # Writes to agent_audit_log table
 ├── types.ts                 # AgentContext, AgentTask interfaces
 ├── providers/
 │   ├── registry.ts                    # Provider registry
-│   ├── claude-agent-provider.ts       # Claude Agent SDK provider
+│   ├── claude-agent-provider.ts       # Optional Claude Agent SDK provider
+│   ├── openai-agent-provider.ts       # Default OpenAI provider
 │   └── remote-conversation-provider.ts # Remote provider protocol
 ├── private-providers.ts     # import.meta.glob for private providers
 ├── private-providers-main.ts
@@ -151,8 +152,8 @@ src/main/agents/
 
 ## Infrastructure
 
-### AnthropicService (`src/main/services/anthropic-service.ts`)
-All Claude API calls go through `createMessage()`. Provides:
+### LlmService (`src/main/services/llm-service.ts`)
+All core LLM API calls go through `createMessage()`. `src/main/services/anthropic-service.ts` remains as a compatibility shim. The wrapper provides:
 - Exponential backoff retry on rate limits, server errors, connection errors
 - Per-call cost tracking in `llm_calls` table (model-aware pricing)
 - Caller attribution (which service made the call)

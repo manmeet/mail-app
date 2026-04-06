@@ -150,7 +150,7 @@ FORMATTING: Write plain text paragraphs separated by blank lines. Do NOT use HTM
 
         const textBlock = response.content.find((block) => block.type === "text");
         if (!textBlock || textBlock.type !== "text") {
-          throw new Error("No text response from Claude");
+          throw new Error("No text response from LLM");
         }
 
         const refinedDraft = textBlock.text.trim();
@@ -225,7 +225,7 @@ FORMATTING: Write plain text paragraphs separated by blank lines. Do NOT use HTM
         prefetchService.trackManualAgentDraft(emailId, taskId);
 
         // Launch agent — events auto-stream to renderer via agent:event IPC
-        await agentCoordinator.runAgent(taskId, ["claude"], prompt, context);
+        await agentCoordinator.runAgent(taskId, ["openai"], prompt, context);
 
         // Link draft to agent task when it completes (async, don't block response)
         agentCoordinator

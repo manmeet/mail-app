@@ -16,7 +16,7 @@ export class CalendaringAgent {
   private model: string;
   private prompt: string;
 
-  constructor(model: string = "claude-sonnet-4-20250514", prompt?: string) {
+  constructor(model: string = "gpt-5.4-mini", prompt?: string) {
     this.model = model;
     this.prompt = prompt || DEFAULT_CALENDARING_PROMPT;
   }
@@ -41,7 +41,7 @@ ${wrapUntrustedEmail(`From: ${email.from}\nTo: ${email.to}\nSubject: ${email.sub
 
     const textBlock = response.content.find((block) => block.type === "text");
     if (!textBlock || textBlock.type !== "text") {
-      throw new Error("No text response from Claude");
+      throw new Error("No text response from LLM");
     }
 
     try {

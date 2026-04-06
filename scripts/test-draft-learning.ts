@@ -2,9 +2,9 @@
  * Test script for draft-edit learning prompt quality.
  *
  * Tests diverse editing scenarios and checks that scoping is correct.
- * Run: npx tsx scripts/test-draft-learning.ts
+ * Run: source .env && npx tsx scripts/test-draft-learning.ts
  */
-import Anthropic from "@anthropic-ai/sdk";
+import { createMessage } from "../src/main/services/anthropic-service";
 
 interface TestCase {
   name: string;
@@ -300,7 +300,7 @@ Each item: {"scope":"...","scopeValue":"...","content":"...","emailContext":"bri
 Respond with ONLY the JSON array, no other text.`;
 }
 
-async function runTestCase(anthropic: Anthropic, tc: TestCase): Promise<{
+async function runTestCase(tc: TestCase): Promise<{
   name: string;
   observations: Observation[];
   thinking: string;
@@ -309,22 +309,18 @@ async function runTestCase(anthropic: Anthropic, tc: TestCase): Promise<{
 }> {
   const prompt = buildPrompt(tc);
 
-  const stream = anthropic.messages.stream({
-    model: "claude-opus-4-20250514",
-    max_tokens: 16000,
-    thinking: {
-      type: "enabled",
-      budget_tokens: 10000,
+  const response = await createMessage(
+    {
+      model: "gpt-5.4",
+      max_tokens: 4000,
+      messages: [{ role: "user", content: prompt }],
     },
-    messages: [{ role: "user", content: prompt }],
-  });
-  const response = await stream.finalMessage();
+    { caller: "test-draft-learning" },
+  );
 
-  const thinkingBlock = response.content.find(b => b.type === "thinking");
-  const thinking = thinkingBlock?.type === "thinking" ? thinkingBlock.thinking : "";
-
-  const textBlock = response.content.find(b => b.type === "text");
+  const textBlock = response.content.find((b) => b.type === "text");
   const text = textBlock?.type === "text" ? textBlock.text : "";
+  const thinking = "";
 
   let observations: Observation[] = [];
   const arrayStart = text.indexOf("[");
@@ -356,8 +352,6 @@ async function runTestCase(anthropic: Anthropic, tc: TestCase): Promise<{
 }
 
 async function main() {
-  const anthropic = new Anthropic();
-
   console.log("=".repeat(80));
   console.log("DRAFT-EDIT LEARNING PROMPT TEST");
   console.log("=".repeat(80));
@@ -375,7 +369,7 @@ async function main() {
     console.log(`${"─".repeat(80)}`);
 
     try {
-      const result = await runTestCase(anthropic, tc);
+      const result = await runTestCase(tc);
       results.push(result);
 
       for (const obs of result.observations) {

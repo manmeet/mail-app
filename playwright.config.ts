@@ -5,8 +5,9 @@ export default defineConfig({
   retries: process.env.CI ? 2 : 0,
   // Cap workers to avoid resource contention from many simultaneous Electron instances.
   // Note: workers is a top-level-only option — per-project workers is silently ignored.
-  // GitHub Actions ubuntu-latest has 2 vCPUs, so "75%" would give just 1 worker.
-  workers: process.env.CI ? 4 : undefined,
+  // Use the same cap locally and in CI; the Electron suites are I/O heavy and become flaky
+  // when too many app instances boot at once.
+  workers: 4,
   reporter: process.env.CI ? [["github"], ["html"]] : "html",
   timeout: 60000,
   use: {

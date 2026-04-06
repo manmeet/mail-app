@@ -194,19 +194,19 @@ test.describe("resolveModelId", () => {
   test("resolves haiku tier to model ID", () => {
     const id = resolveModelId("haiku");
     expect(id).toBe(MODEL_TIER_IDS.haiku);
-    expect(id).toContain("haiku");
+    expect(id).toBe("gpt-5-mini");
   });
 
   test("resolves sonnet tier to model ID", () => {
     const id = resolveModelId("sonnet");
     expect(id).toBe(MODEL_TIER_IDS.sonnet);
-    expect(id).toContain("sonnet");
+    expect(id).toBe("gpt-5.4-mini");
   });
 
   test("resolves opus tier to model ID", () => {
     const id = resolveModelId("opus");
     expect(id).toBe(MODEL_TIER_IDS.opus);
-    expect(id).toContain("opus");
+    expect(id).toBe("gpt-5.4");
   });
 
   test("all tiers have non-empty model IDs", () => {
@@ -259,9 +259,9 @@ test.describe("ConfigSchema", () => {
   test("validates full config", () => {
     const result = ConfigSchema.safeParse({
       maxEmails: 100,
-      model: "claude-sonnet-4-20250514",
+      model: "gpt-5.4-mini",
       dryRun: true,
-      anthropicApiKey: "sk-test-key",
+      openaiApiKey: "sk-test-key",
       theme: "dark",
       undoSendDelay: 10,
       inboxDensity: "default",

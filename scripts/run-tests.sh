@@ -40,11 +40,47 @@ log_error() {
     echo -e "${RED}[ERROR]${NC} $1"
 }
 
+resolve_node_gyp_python() {
+    if command -v python3.10 &> /dev/null; then
+        command -v python3.10
+        return 0
+    fi
+    if command -v python3.11 &> /dev/null; then
+        command -v python3.11
+        return 0
+    fi
+    command -v python3 2>/dev/null || true
+}
+
+can_load_better_sqlite3_in_node() {
+    node -e "require('better-sqlite3')" >/dev/null 2>&1
+}
+
+can_load_better_sqlite3_in_electron() {
+    local check_file
+    check_file="$(mktemp "${PROJECT_DIR}/.tmp-electron-check-XXXX.cjs")"
+    cat > "$check_file" <<'EOF'
+try {
+  require('better-sqlite3');
+  process.exit(0);
+} catch (error) {
+  console.error(error && error.stack ? error.stack : String(error));
+  process.exit(1);
+}
+EOF
+    npx electron "$check_file" >/dev/null 2>&1
+    local status=$?
+    rm -f "$check_file"
+    return $status
+}
+
 # Rebuild better-sqlite3 for system Node
 rebuild_for_node() {
     log_info "Rebuilding better-sqlite3 for system Node..."
+    local node_gyp_python
+    node_gyp_python="$(resolve_node_gyp_python)"
     rm -rf node_modules/better-sqlite3/build node_modules/better-sqlite3/prebuilds 2>/dev/null || true
-    npm rebuild better-sqlite3 || {
+    npm_config_python="$node_gyp_python" npm rebuild better-sqlite3 || {
         log_error "Failed to rebuild better-sqlite3 for Node"
         exit 1
     }
@@ -54,9 +90,11 @@ rebuild_for_node() {
 # Rebuild better-sqlite3 for Electron
 rebuild_for_electron() {
     log_info "Rebuilding better-sqlite3 for Electron..."
+    local node_gyp_python
+    node_gyp_python="$(resolve_node_gyp_python)"
     rm -rf node_modules/better-sqlite3/build node_modules/better-sqlite3/prebuilds 2>/dev/null || true
-    npx @electron/rebuild --force --build-from-source 2>/dev/null || {
-        log_error "Failed to rebuild better-sqlite3 for Electron"
+    npm_config_python="$node_gyp_python" npx electron-builder install-app-deps 2>/dev/null || {
+        log_error "Failed to restore native Electron dependencies"
         exit 1
     }
     log_info "better-sqlite3 rebuilt for Electron"
@@ -201,20 +239,12 @@ run_all_tests() {
     clean_test_dbs
 
     # Phase 1: Integration + E2E tests (Electron-compiled better-sqlite3)
-    # Run this FIRST because npm ci's postinstall already compiled better-sqlite3
+    # Run this FIRST because npm ci's postinstall typically compiles better-sqlite3
     # for Electron via electron-builder install-app-deps.
-    # Only rebuild if needed: if better-sqlite3 loads from system Node, it's compiled
-    # for Node and needs rebuilding for Electron. If it fails (ABI mismatch), it's
-    # already compiled for Electron (e.g. from npm ci postinstall) — skip the ~75s rebuild.
     log_info "=== Phase 1: Integration + E2E Tests (parallel) ==="
     check_display
     ensure_build
-    if node -e "require('better-sqlite3')" 2>/dev/null; then
-        log_warn "better-sqlite3 compiled for system Node, rebuilding for Electron..."
-        rebuild_for_electron
-    else
-        log_info "better-sqlite3 already compiled for Electron, skipping rebuild"
-    fi
+    rebuild_for_electron
     # run_playwright_tolerant requires run_with_display to already be in the
     # function, but run_all_tests manages its own display. Use the same
     # teardown-tolerant logic inline.

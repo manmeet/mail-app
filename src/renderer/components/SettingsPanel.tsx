@@ -111,7 +111,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
   const [eaError, setEaError] = useState<string | null>(null);
 
   // Agent authentication state
-  const [anthropicApiKey, setAnthropicApiKey] = useState("");
+  const [openaiApiKey, setOpenaiApiKey] = useState("");
   const [isSavingApiKey, setIsSavingApiKey] = useState(false);
   const [apiKeySaved, setApiKeySaved] = useState(false);
   const [claudeCliAvailable, setClaudeCliAvailable] = useState(false);
@@ -223,7 +223,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
       setModelConfig({ ...DEFAULT_MODEL_CONFIG, ...generalConfig.modelConfig });
       setGithubToken(generalConfig.githubToken ?? "");
       setAllowPrereleaseUpdates(generalConfig.allowPrereleaseUpdates ?? false);
-      setAnthropicApiKey(generalConfig.anthropicApiKey ?? "");
+      setOpenaiApiKey(generalConfig.openaiApiKey ?? "");
       const browser = generalConfig.agentBrowser;
       if (browser) {
         setBrowserEnabled(browser.enabled);
@@ -545,7 +545,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
     setIsSavingApiKey(true);
     setApiKeySaved(false);
     try {
-      await window.api.settings.set({ anthropicApiKey: anthropicApiKey || undefined });
+      await window.api.settings.set({ openaiApiKey: openaiApiKey || undefined });
       queryClient.invalidateQueries({ queryKey: ["general-config"] });
       setApiKeySaved(true);
       setTimeout(() => setApiKeySaved(false), 3000);
@@ -1063,8 +1063,8 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                 <div className="mb-3">
                   <h3 className="font-semibold text-gray-900 dark:text-gray-100">AI Models</h3>
                   <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                    Choose which Claude model to use for each feature. Haiku is fastest and
-                    cheapest, Opus is most capable.
+                    Choose which model tier to use for each feature. Fast is cheapest and
+                    fastest, Best is most capable.
                   </p>
                 </div>
                 <div className="space-y-3">
@@ -1335,7 +1335,7 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                   <div className="bg-blue-50 dark:bg-blue-900/30 p-3 rounded-lg text-sm text-blue-800 dark:text-blue-300">
                     <p className="font-medium mb-1">How it works:</p>
                     <ul className="list-disc list-inside space-y-1">
-                      <li>Uses Claude's web search to find information about the sender</li>
+                      <li>Uses AI-powered web search to find information about the sender</li>
                       <li>Results are cached for the session to avoid repeated lookups</li>
                       <li>Includes professional background and context in the draft prompt</li>
                     </ul>
@@ -2400,10 +2400,10 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                 Authentication
               </h4>
 
-              {/* Anthropic API Key */}
+              {/* OpenAI API Key */}
               <div className="mb-6">
                 <h5 className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
-                  Anthropic API Key
+                  OpenAI API Key
                 </h5>
                 <p className="text-xs text-gray-500 dark:text-gray-400 mb-3">
                   Required for email analysis, draft generation, and sender lookup.
@@ -2411,9 +2411,9 @@ export function SettingsPanel({ onClose, initialTab }: SettingsPanelProps) {
                 <div className="flex gap-2">
                   <input
                     type="password"
-                    value={anthropicApiKey}
-                    onChange={(e) => setAnthropicApiKey(e.target.value)}
-                    placeholder="sk-ant-..."
+                    value={openaiApiKey}
+                    onChange={(e) => setOpenaiApiKey(e.target.value)}
+                    placeholder="sk-..."
                     className="flex-1 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 placeholder-gray-400 dark:placeholder-gray-400"
                   />
                   <button
@@ -3180,7 +3180,7 @@ function UsageCostSection() {
           AI Usage & Costs
         </h3>
         <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
-          Token usage and estimated costs for Claude API calls (last 30 days).
+          Token usage and estimated costs for AI API calls (last 30 days).
         </p>
       </div>
 

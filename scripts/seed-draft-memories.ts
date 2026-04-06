@@ -1,7 +1,7 @@
 /**
  * Seed demo database with draft memories by running the actual analysis pipeline.
  *
- * Uses sqlite3 CLI for database writes and the Anthropic SDK for Claude API calls.
+ * Uses sqlite3 CLI for database writes and the shared LLM wrapper for OpenAI calls.
  * Only writes to draft_memories table (no email/FTS5 conflicts).
  *
  * Run: source .env && npx tsx scripts/seed-draft-memories.ts
@@ -10,7 +10,7 @@ import { execSync } from "child_process";
 import { randomUUID } from "crypto";
 import { join } from "path";
 import { existsSync } from "fs";
-import Anthropic from "@anthropic-ai/sdk";
+import { createMessage } from "../src/main/services/anthropic-service";
 
 // ─── Database helpers (via sqlite3 CLI) ────────────────────────────────────────
 
@@ -181,7 +181,6 @@ Respond with ONLY the JSON array, no other text.`;
 type MemoryScope = "person" | "domain" | "category" | "global";
 
 async function main() {
-  const anthropic = new Anthropic();
   const now = Date.now();
   const validScopes: MemoryScope[] = ["person", "domain", "category", "global"];
 
@@ -198,15 +197,16 @@ async function main() {
 
     const prompt = buildPrompt(tc);
     try {
-      const stream = anthropic.messages.stream({
-        model: "claude-opus-4-20250514",
-        max_tokens: 16000,
-        thinking: { type: "enabled", budget_tokens: 10000 },
-        messages: [{ role: "user", content: prompt }],
-      });
-      const response = await stream.finalMessage();
+      const response = await createMessage(
+        {
+          model: "gpt-5.4",
+          max_tokens: 4000,
+          messages: [{ role: "user", content: prompt }],
+        },
+        { caller: "seed-draft-memories" },
+      );
 
-      const textBlock = response.content.find(b => b.type === "text");
+      const textBlock = response.content.find((b) => b.type === "text");
       const text = textBlock?.type === "text" ? textBlock.text : "";
       const arrayStart = text.indexOf("[");
       const arrayEnd = text.lastIndexOf("]");

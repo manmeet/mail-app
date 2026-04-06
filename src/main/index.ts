@@ -293,16 +293,16 @@ ipcMain.handle("default-mail-app:get-pending", () => {
 // Initialize database on startup
 const _db = initDatabase();
 
-// Wire up AnthropicService cost tracking
+// Wire up LLM cost tracking
 import { setAnthropicServiceDb } from "./services/anthropic-service";
 setAnthropicServiceDb(_db);
 
-// If no ANTHROPIC_API_KEY in env (e.g. packaged app with no .env), read from stored config
-// so that services using `new Anthropic()` pick it up automatically.
+// If no OPENAI_API_KEY in env (e.g. packaged app with no .env), read from stored config
+// so the shared LLM service can pick it up automatically.
 {
   const config = getConfig();
-  if (!process.env.ANTHROPIC_API_KEY && config.anthropicApiKey) {
-    process.env.ANTHROPIC_API_KEY = config.anthropicApiKey;
+  if (!process.env.OPENAI_API_KEY && config.openaiApiKey) {
+    process.env.OPENAI_API_KEY = config.openaiApiKey;
   }
 }
 

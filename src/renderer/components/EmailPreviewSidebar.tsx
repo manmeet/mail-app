@@ -267,7 +267,7 @@ export const EmailPreviewSidebar = memo(function EmailPreviewSidebar() {
           replayAgentTrace(
             taskId,
             email.id,
-            ["claude"],
+            ["openai"],
             "",
             {
               accountId: email.accountId || "",

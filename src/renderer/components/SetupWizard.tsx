@@ -41,16 +41,16 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
   useEffect(() => {
     (
       window.api.gmail.checkAuth() as Promise<
-        IpcResponse<{ hasCredentials: boolean; hasTokens: boolean; hasAnthropicKey: boolean }>
+        IpcResponse<{ hasCredentials: boolean; hasTokens: boolean; hasOpenAIKey: boolean }>
       >
     )
       .then((authResult) => {
         if (authResult.success) {
-          const { hasCredentials, hasAnthropicKey, hasTokens } = authResult.data;
+          const { hasCredentials, hasOpenAIKey, hasTokens } = authResult.data;
 
           const flow: Step[] = [];
           if (!hasCredentials) flow.push("credentials");
-          if (!hasAnthropicKey) flow.push("apikey");
+          if (!hasOpenAIKey) flow.push("apikey");
           if (!hasTokens) flow.push("oauth");
           flow.push("extensions");
           flow.push("analytics");
@@ -58,7 +58,7 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
 
           if (!hasCredentials) {
             setStep("credentials");
-          } else if (!hasAnthropicKey) {
+          } else if (!hasOpenAIKey) {
             setStep("apikey");
           } else if (!hasTokens) {
             setStep("oauth");
@@ -108,7 +108,7 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
 
   const handleSaveApiKey = async () => {
     if (!apiKey.trim()) {
-      setError("Please enter your Anthropic API key");
+      setError("Please enter your OpenAI API key");
       return;
     }
 
@@ -126,13 +126,13 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
       }
 
       const result = (await window.api.settings.set({
-        anthropicApiKey: apiKey.trim(),
+        openaiApiKey: apiKey.trim(),
       })) as IpcResponse<void>;
       if (result.success) {
         const authResult = (await window.api.gmail.checkAuth()) as IpcResponse<{
           hasCredentials: boolean;
           hasTokens: boolean;
-          hasAnthropicKey: boolean;
+          hasOpenAIKey: boolean;
         }>;
         if (authResult.success && authResult.data.hasTokens) {
           await enterExtensionsStep();
@@ -337,11 +337,11 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
           {step === "apikey" && (
             <>
               <h2 className="text-2xl font-bold text-gray-900 dark:text-gray-100 mb-4">
-                Anthropic API Key
+                OpenAI API Key
               </h2>
               <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Exo uses Claude to analyze your emails, generate drafts, and look up sender
-                information. You'll need an Anthropic API key to enable these features.
+                Exo uses OpenAI to analyze your emails, generate drafts, and look up sender
+                information. You'll need an OpenAI API key to enable these features.
               </p>
 
               <div className="bg-blue-50 dark:bg-blue-900/30 p-4 rounded-lg mb-6">
@@ -352,12 +352,12 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
                   <li>
                     Go to{" "}
                     <a
-                      href="https://console.anthropic.com/settings/keys"
+                      href="https://platform.openai.com/api-keys"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline hover:no-underline"
                     >
-                      console.anthropic.com
+                      platform.openai.com/api-keys
                     </a>
                   </li>
                   <li>Create a new API key (or use an existing one)</li>
@@ -375,7 +375,7 @@ export function SetupWizard({ onComplete }: SetupWizardProps) {
                     value={apiKey}
                     onChange={(e) => setApiKey(e.target.value)}
                     onKeyDown={(e) => e.key === "Enter" && !isLoading && handleSaveApiKey()}
-                    placeholder="sk-ant-api03-..."
+                    placeholder="sk-..."
                     className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-gray-100 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                   />
                 </div>

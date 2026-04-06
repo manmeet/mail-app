@@ -109,7 +109,7 @@ function createMockClient(
   return { client, calls };
 }
 
-function makeSuccessResponse(model: string = "claude-sonnet-4-20250514") {
+function makeSuccessResponse(model: string = "gpt-5.4-mini") {
   return {
     id: "msg_test_123",
     type: "message" as const,
@@ -127,7 +127,7 @@ function makeSuccessResponse(model: string = "claude-sonnet-4-20250514") {
   };
 }
 
-function makeTestParams(model: string = "claude-sonnet-4-20250514") {
+function makeTestParams(model: string = "gpt-5.4-mini") {
   return {
     model,
     max_tokens: 256,
@@ -211,7 +211,7 @@ test.describe("AnthropicService", () => {
     const row = testDb.prepare("SELECT * FROM llm_calls LIMIT 1").get() as LlmCallRecord;
 
     expect(row).toBeTruthy();
-    expect(row.model).toBe("claude-sonnet-4-20250514");
+    expect(row.model).toBe("gpt-5.4-mini");
     expect(row.caller).toBe("test-cost");
     expect(row.email_id).toBe("email-123");
     expect(row.account_id).toBe("acct-456");
@@ -228,22 +228,22 @@ test.describe("AnthropicService", () => {
     const { client } = createMockClient("success");
     _setClientForTesting(client);
 
-    await createMessage(makeTestParams("claude-sonnet-4-20250514"), { caller: "test-cost-math" });
+    await createMessage(makeTestParams("gpt-5.4-mini"), { caller: "test-cost-math" });
 
     const row = testDb.prepare("SELECT cost_cents FROM llm_calls LIMIT 1").get() as {
       cost_cents: number;
     };
 
-    // Sonnet pricing: input=$3/M, output=$15/M, cacheRead=$0.3/M, cacheWrite=$3.75/M
+    // GPT-5.4 mini pricing: input=$0.75/M, output=$3/M, cacheRead=$0.075/M, cacheWrite=$0/M
     // usage: 100 input (non-cached), 50 output, 20 cacheRead, 10 cacheWrite
     // API input_tokens already excludes cache tokens — they're separate fields
-    // inputCost = 100 * 3.0 / 1_000_000 = 0.0003
-    // outputCost = 50 * 15.0 / 1_000_000 = 0.00075
-    // cacheReadCost = 20 * 0.3 / 1_000_000 = 0.000006
-    // cacheWriteCost = 10 * 3.75 / 1_000_000 = 0.0000375
-    // total $ = 0.0003 + 0.00075 + 0.000006 + 0.0000375 = 0.0010935
-    // total cents = 0.10935
-    expect(row.cost_cents).toBeCloseTo(0.10935, 4);
+    // inputCost = 100 * 0.75 / 1_000_000 = 0.000075
+    // outputCost = 50 * 3.0 / 1_000_000 = 0.00015
+    // cacheReadCost = 20 * 0.075 / 1_000_000 = 0.0000015
+    // cacheWriteCost = 10 * 0 / 1_000_000 = 0
+    // total $ = 0.000075 + 0.00015 + 0.0000015 = 0.0002265
+    // total cents = 0.02265
+    expect(row.cost_cents).toBeCloseTo(0.02265, 4);
   });
 
   test("timeout via AbortController aborts the request", async () => {

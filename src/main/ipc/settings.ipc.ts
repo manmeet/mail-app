@@ -49,7 +49,7 @@ function getStore(): Store<{ config: Config }> {
       defaults: {
         config: {
           maxEmails: 50,
-          model: "claude-sonnet-4-20250514",
+          model: "gpt-5.4-mini",
           modelConfig: DEFAULT_MODEL_CONFIG,
           dryRun: false,
           analysisPrompt: DEFAULT_ANALYSIS_PROMPT,
@@ -96,15 +96,19 @@ export function getConfig(): Config {
 
   // One-time migration: if user had a custom legacy `model` but no `modelConfig`,
   // map it to a per-feature config so the previous choice isn't silently dropped.
-  if (!config.modelConfig && config.model && config.model !== "claude-sonnet-4-20250514") {
+  if (!config.modelConfig && config.model && config.model !== "gpt-5.4-mini") {
     const legacyTier =
       (Object.entries(MODEL_TIER_IDS) as [ModelTier, string][]).find(
         ([, id]) => id === config.model,
-      )?.[0] ?? "sonnet";
+      )?.[0] ??
+      (config.model.includes("haiku") || config.model.includes("mini") ? "haiku" : undefined) ??
+      (config.model.includes("opus") || config.model.includes("gpt-5.4") ? "opus" : undefined) ??
+      "sonnet";
     const migrated: ModelConfig = { ...DEFAULT_MODEL_CONFIG };
     for (const key of Object.keys(migrated) as (keyof ModelConfig)[]) {
       // Only migrate features that previously used config.model.
-      // senderLookup was hardcoded to haiku; agentDrafter was hardcoded to sonnet 4.5;
+      // senderLookup was hardcoded to the fastest model tier; agentDrafter was hardcoded
+      // to the balanced tier; agentChat is new (default highest tier).
       // agentChat is new (default opus).
       if (key === "senderLookup" || key === "agentDrafter" || key === "agentChat") continue;
       migrated[key] = legacyTier;
@@ -129,41 +133,36 @@ export function getModelIdForFeature(feature: keyof ModelConfig): string {
 }
 
 export function registerSettingsIpc(): void {
-  // Validate an Anthropic API key with a minimal API call
+  // Validate an OpenAI API key with a minimal API call
   ipcMain.handle(
     "settings:validate-api-key",
     async (_, { apiKey }: { apiKey: string }): Promise<IpcResponse<void>> => {
       try {
-        const Anthropic = (await import("@anthropic-ai/sdk")).default;
+        const OpenAI = (await import("openai")).default;
 
         // Resolve model with fallback so config errors don't block validation
         let model: string;
         try {
           model = getModelIdForFeature("senderLookup");
         } catch {
-          model = "claude-haiku-4-5-20251001";
+          model = "gpt-5-mini";
         }
 
-        const client = new Anthropic({ apiKey, timeout: 10_000 });
-        await client.messages.create({
+        const client = new OpenAI({ apiKey, timeout: 10_000 });
+        await client.chat.completions.create({
           model,
-          max_tokens: 1,
+          max_completion_tokens: 1,
           messages: [{ role: "user", content: "hi" }],
         });
         return { success: true, data: undefined };
       } catch (error) {
-        // Need Anthropic class for instanceof checks — safe to re-import (module cache)
-        const Anthropic = (await import("@anthropic-ai/sdk")).default;
-        if (error instanceof Anthropic.AuthenticationError) {
+        const status = (error as { status?: number } | undefined)?.status;
+        if (status === 401) {
           return { success: false, error: "Invalid API key. Please check and try again." };
         }
-        // Rate limiting, overload (529), and permission denied (403) all happen after
-        // auth succeeds — the key is valid even if this specific request was rejected
-        if (
-          error instanceof Anthropic.RateLimitError ||
-          error instanceof Anthropic.PermissionDeniedError ||
-          (error instanceof Anthropic.APIError && error.status === 529)
-        ) {
+        // Rate limiting and most permission/reliability failures happen after auth succeeds,
+        // so we still treat the key as valid for save purposes.
+        if (status === 403 || status === 429 || (status !== undefined && status >= 500)) {
           return { success: true, data: undefined };
         }
         const msg = error instanceof Error ? error.message : "Unknown error";
@@ -205,8 +204,19 @@ export function registerSettingsIpc(): void {
         autoUpdateService.setAllowPrerelease(!!newConfig.allowPrereleaseUpdates);
       }
 
-      // If anthropicApiKey changed, propagate to process.env (for Anthropic SDK)
-      // and to the agent worker (for Claude Agent SDK)
+      // If openaiApiKey changed, propagate it immediately to the main process and agent worker.
+      if ("openaiApiKey" in config) {
+        if (newConfig.openaiApiKey) {
+          process.env.OPENAI_API_KEY = newConfig.openaiApiKey;
+        } else {
+          delete process.env.OPENAI_API_KEY;
+        }
+        agentCoordinator.updateConfig({
+          openaiApiKey: newConfig.openaiApiKey || undefined,
+        });
+      }
+
+      // Preserve the optional Claude provider path for users who still configure it.
       if ("anthropicApiKey" in config) {
         if (newConfig.anthropicApiKey) {
           process.env.ANTHROPIC_API_KEY = newConfig.anthropicApiKey;
@@ -271,8 +281,8 @@ export function registerSettingsIpc(): void {
       }
 
       // Reset cached analyzer/service instances when model config or API key changes,
-      // since they hold Anthropic client instances that capture the key at construction.
-      if ("modelConfig" in config || "anthropicApiKey" in config) {
+      // since they hold SDK client instances that capture config at construction.
+      if ("modelConfig" in config || "openaiApiKey" in config || "anthropicApiKey" in config) {
         resetClient();
         resetAnalyzer();
         resetArchiveReadyAnalyzer();
