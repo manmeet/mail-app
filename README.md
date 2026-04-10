@@ -1,36 +1,37 @@
 <div align="center">
 
-<img width="1200" alt="Exo" src="docs/images/readme-hero.png" />
+<img width="1200" alt="Trexo Mail" src="docs/images/readme-hero.png" />
 
-### Exo: AI-Native Inbox for Gmail
+### Trexo Mail: AI-Native Inbox for Gmail
 
-[![GitHub stars](https://img.shields.io/github/stars/ankitvgupta/mail-app?style=flat&logo=github)](https://github.com/ankitvgupta/mail-app/stargazers)
-[![GitHub release](https://img.shields.io/github/v/release/ankitvgupta/mail-app?style=flat&logo=github)](https://github.com/ankitvgupta/mail-app/releases)
-[![License](https://img.shields.io/github/license/ankitvgupta/mail-app?style=flat)](LICENSE)
-[![Download DMG](https://img.shields.io/github/v/release/ankitvgupta/mail-app?label=Download%20.dmg&logo=apple&style=flat-square)](https://github.com/ankitvgupta/mail-app/releases/latest)
+[![GitHub stars](https://img.shields.io/github/stars/manmeet/mail-app?style=flat&logo=github)](https://github.com/manmeet/mail-app/stargazers)
+[![GitHub release](https://img.shields.io/github/v/release/manmeet/mail-app?style=flat&logo=github)](https://github.com/manmeet/mail-app/releases)
+[![License](https://img.shields.io/github/license/manmeet/mail-app?style=flat)](LICENSE)
+[![Download DMG](https://img.shields.io/github/v/release/manmeet/mail-app?label=Download%20.dmg&logo=apple&style=flat-square)](https://github.com/manmeet/mail-app/releases/latest)
 
 <br />
 
-Exo is an open source, AI-native desktop email client for Gmail. <br />
+Trexo Mail is an open source, AI-native desktop email client for Gmail. <br />
 Built with Electron, React, TypeScript, and Tailwind CSS.
 
 <br />
 
-[**Download for macOS**](https://github.com/ankitvgupta/mail-app/releases/latest) &nbsp;&bull;&nbsp; [Documentation](https://exo.email) &nbsp;&bull;&nbsp; [Changelog](https://github.com/ankitvgupta/mail-app/releases) 
+[**Download for macOS**](https://github.com/manmeet/mail-app/releases/latest) &nbsp;&bull;&nbsp; [Documentation](https://exo.email) &nbsp;&bull;&nbsp; [Changelog](https://github.com/manmeet/mail-app/releases)
 
 <br />
 
+<img width="1200" alt="Trexo Mail" src="docs/images/readme-hero.png" />
 
 </div>
 
 
-# Exo
+# Trexo Mail
 
-[![Download DMG](https://img.shields.io/github/v/release/ankitvgupta/mail-app?label=Download%20.dmg&logo=apple&style=flat-square)](https://github.com/ankitvgupta/mail-app/releases/latest)
+[![Download DMG](https://img.shields.io/github/v/release/manmeet/mail-app?label=Download%20.dmg&logo=apple&style=flat-square)](https://github.com/manmeet/mail-app/releases/latest)
 
 An open source, AI-native desktop email client. Built with Electron, React, TypeScript, and Tailwind CSS.
 
-Exo treats AI as a first-class citizen — not a bolted-on feature. Every email gets analyzed, prioritized, and optionally drafted before you even open it. The goal is zero cognitive load: open your inbox and everything is already handled or ready to send.
+Trexo Mail treats AI as a first-class citizen — not a bolted-on feature. Every email gets analyzed, prioritized, and optionally drafted before you even open it. The goal is zero cognitive load: open your inbox and everything is already handled or ready to send.
 
 ## Getting Started 
 
