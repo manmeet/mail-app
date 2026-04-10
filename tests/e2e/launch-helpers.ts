@@ -1,10 +1,14 @@
 import { _electron as electron, expect, Page, ElectronApplication } from "@playwright/test";
 import path from "path";
 import fs from "fs";
+import { execFileSync } from "child_process";
 import { fileURLToPath } from "url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const SCREENSHOT_DIR = path.join(__dirname, "../../tests/screenshots");
+const PROJECT_ROOT = path.join(__dirname, "../..");
+const ENSURE_NATIVE_SCRIPT = path.join(PROJECT_ROOT, "scripts/ensure-native-modules.sh");
+let electronNativeModulesReady = false;
 
 export type LaunchOptions = {
   workerIndex?: number;
@@ -22,6 +26,11 @@ export async function launchElectronApp(
   options: LaunchOptions = {},
 ): Promise<{ app: ElectronApplication; page: Page }> {
   const { workerIndex = 0, extraEnv = {}, waitAfterLoad } = options;
+
+  if (!electronNativeModulesReady) {
+    execFileSync(ENSURE_NATIVE_SCRIPT, { cwd: PROJECT_ROOT, stdio: "inherit" });
+    electronNativeModulesReady = true;
+  }
 
   const app = await electron.launch({
     args: [path.join(__dirname, "../../out/main/index.js")],
