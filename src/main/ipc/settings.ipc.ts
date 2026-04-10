@@ -133,27 +133,17 @@ export function getModelIdForFeature(feature: keyof ModelConfig): string {
 }
 
 export function registerSettingsIpc(): void {
-  // Validate an OpenAI API key with a minimal API call
+  // Validate an OpenAI API key with an auth-only API call.
+  // Avoid model-dependent checks here: a valid key can still hit 400s for
+  // model/output-limit reasons, which should not block onboarding.
   ipcMain.handle(
     "settings:validate-api-key",
     async (_, { apiKey }: { apiKey: string }): Promise<IpcResponse<void>> => {
       try {
         const OpenAI = (await import("openai")).default;
 
-        // Resolve model with fallback so config errors don't block validation
-        let model: string;
-        try {
-          model = getModelIdForFeature("senderLookup");
-        } catch {
-          model = "gpt-5-mini";
-        }
-
         const client = new OpenAI({ apiKey, timeout: 10_000 });
-        await client.chat.completions.create({
-          model,
-          max_completion_tokens: 1,
-          messages: [{ role: "user", content: "hi" }],
-        });
+        await client.models.list();
         return { success: true, data: undefined };
       } catch (error) {
         const status = (error as { status?: number } | undefined)?.status;
